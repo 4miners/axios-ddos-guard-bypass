@@ -15,6 +15,9 @@
     "test:dev": "jest --watchAll",
     "start-ts": "ts-node ./src"
   },
+  "engines": {
+    "node": ">=14"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/4miners/axios-ddos-guard-bypass.git"
