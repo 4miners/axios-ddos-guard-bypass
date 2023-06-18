@@ -31,13 +31,13 @@ async function addCookiesToJar(cookies: Cookie[], jar: CookieJar, url: string) {
   }
 }
 
-async function parseAndAddCookiesToJar(response: AxiosResponse) {
+async function parseAndAddCookiesToJar(axios: AxiosInstance, response: AxiosResponse) {
   if (response?.headers && response.headers['set-cookie']) {
     const config = response.config;
     return addCookiesToJar(
       parseCookies(response.headers),
       config.jar as CookieJar,
-      response.config.url!
+      axios.getUri(response.config)!
     );
   }
 }
@@ -48,7 +48,7 @@ export function ddosGuardBypass(axios: AxiosInstance): void {
       if (config.jar) {
         // Get cookies valid for request and add them to headers, preserving exisiting cookies
         let existingCookies = config.headers['cookie'] || '';
-        let newCookies = config.jar.getCookieStringSync(config.url || '');
+        let newCookies = config.jar.getCookieStringSync(axios.getUri(config)!);
         if (newCookies) {
           config.headers['cookie'] =
             existingCookies + (existingCookies ? '; ' : '') + newCookies;
@@ -68,14 +68,14 @@ export function ddosGuardBypass(axios: AxiosInstance): void {
   axios.interceptors.response.use(
     async (response) => {
       if (response.config.jar) {
-        await parseAndAddCookiesToJar(response);
+        await parseAndAddCookiesToJar(axios, response);
       }
 
       return response;
     },
     async (error) => {
       if (error.config.jar) {
-        await parseAndAddCookiesToJar(error.response);
+        await parseAndAddCookiesToJar(axios, error.response);
       }
 
       const status = error.response?.status;
