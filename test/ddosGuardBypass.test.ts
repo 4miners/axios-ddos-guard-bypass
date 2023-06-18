@@ -56,4 +56,28 @@ describe('DdosGuardBypass', () => {
       expect(found).toBeInstanceOf(Cookie);
     }
   }, 20000);
+
+  it('should bypass DDoS Guard when baseURL is used', async () => {
+    let agent = axios.create({
+      baseURL: serviceUrl
+    });
+
+    ddosGuardBypass(agent);
+
+    for (let index = 0; index < 5; index++) {
+      console.log(`Sending req ${index + 1}`);
+      let response = await agent({
+        headers: headers
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.config.jar).toBeInstanceOf(CookieJar);
+
+      let expectedCookie = '__ddg1_';
+      const cookies = response.config.jar?.getCookiesSync(serviceUrl) || [];
+
+      const found = cookies.find((cookie) => cookie.key === expectedCookie);
+      expect(found).toBeInstanceOf(Cookie);
+    }
+  }, 20000);
 });
