@@ -46,6 +46,6 @@
   },
   "dependencies": {
     "axios": "^1.4.0",
-    "tough-cookie": "^4.1.2"
+    "tough-cookie": "^4.1.3"
   }
 }
